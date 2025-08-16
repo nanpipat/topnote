@@ -211,16 +211,16 @@ export default function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
 }
 
 // Debounce utility function
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
+function debounce(
+  func: (title: string, content: string) => void,
   wait: number
-): (...args: Parameters<T>) => void {
+): (title: string, content: string) => void {
   let timeout: NodeJS.Timeout | null = null
   
-  return (...args: Parameters<T>) => {
+  return (title: string, content: string) => {
     if (timeout) {
       clearTimeout(timeout)
     }
-    timeout = setTimeout(() => func(...args), wait)
+    timeout = setTimeout(() => func(title, content), wait)
   }
 }

@@ -300,12 +300,9 @@ export default function BlogEditor({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Add Link</h3>
-            <p className="text-sm text-gray-600 mb-3">
-              Selected text: "{selectedText}"
-            </p>
             <input
               type="url"
-              placeholder="Enter URL..."
+              placeholder="Write your story..."
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"

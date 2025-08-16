@@ -32,7 +32,7 @@ export default function LoginPage() {
               },
             }}
             providers={["google", "github"]}
-            redirectTo={`${window.location.origin}/auth/callback`}
+            redirectTo={`${typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`}
           />
         </div>
       </div>

@@ -4,18 +4,19 @@ import Link from "next/link";
 import { FileTextIcon } from "lucide-react";
 
 interface SharePageProps {
-  params: {
+  params: Promise<{
     token: string;
-  };
+  }>;
 }
 
 export default async function SharePage({ params }: SharePageProps) {
   const supabase = await createServerClient();
+  const { token } = await params;
 
   const { data: note, error } = await supabase
     .from("notes")
     .select("*")
-    .eq("share_token", params.token)
+    .eq("share_token", token)
     .eq("is_public", true)
     .single();
 
@@ -87,11 +88,12 @@ export default async function SharePage({ params }: SharePageProps) {
 
 export async function generateMetadata({ params }: SharePageProps) {
   const supabase = await createServerClient();
+  const { token } = await params;
 
   const { data: note } = await supabase
     .from("notes")
     .select("title, content")
-    .eq("share_token", params.token)
+    .eq("share_token", token)
     .eq("is_public", true)
     .single();
 
