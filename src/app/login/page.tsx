@@ -12,7 +12,7 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">topnote</h1>
-          <p className="text-gray-600">Your personal Notion-like workspace</p>
+          <p className="text-gray-600">Personal note-taking workspace</p>
         </div>
       </div>
 
@@ -31,8 +31,10 @@ export default function LoginPage() {
                 },
               },
             }}
-            providers={["google", "github"]}
-            redirectTo={`${typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`}
+            providers={[]}
+            view="sign_in"
+            showLinks={false}
+            redirectTo="/"
           />
         </div>
       </div>
