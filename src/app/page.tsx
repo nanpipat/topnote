@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase";
 import { Database } from "@/lib/supabase";
 import Sidebar from "@/components/Sidebar";
 import NoteEditor from "@/components/NoteEditor";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, ArrowLeftIcon } from "lucide-react";
 
 type Note = Database["public"]["Tables"]["notes"]["Row"];
 
@@ -17,6 +17,8 @@ export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -30,6 +32,16 @@ export default function Home() {
       fetchNotes();
     }
   }, [user]);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const fetchNotes = async () => {
     if (!user) return;
@@ -88,8 +100,20 @@ export default function Home() {
     } else {
       setNotes([data, ...notes]);
       setSelectedNote(data);
+
     }
     setIsCreating(false);
+  };
+
+  const handleSelectNote = (note: Note) => {
+    setSelectedNote(note);
+
+  };
+
+  const handleBackToList = () => {
+    if (isMobile) {
+      setSelectedNote(null);
+    }
   };
 
   const updateNote = async (noteId: string, updates: Partial<Note>) => {
@@ -140,43 +164,97 @@ export default function Home() {
 
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-gray-900">topnote</h1>
-            <button
-              onClick={createNote}
-              disabled={isCreating}
-              className="p-1 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
-            >
-              <PlusIcon className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
+      {/* Mobile Header */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+          {selectedNote ? (
+            <>
+              <button
+                onClick={handleBackToList}
+                className="p-2 hover:bg-gray-100 rounded-md transition-colors -ml-2"
+              >
+                <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+              </button>
+              <h1 className="text-lg font-semibold text-gray-900 truncate mx-3 flex-1">
+                {selectedNote.title || 'Untitled'}
+              </h1>
+              <div className="w-9" /> {/* Spacer for balance */}
+            </>
+          ) : (
+            <>
+              <h1 className="text-lg font-semibold text-gray-900">topnote</h1>
+              <button
+                onClick={createNote}
+                disabled={isCreating}
+                className="p-2 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+              >
+                <PlusIcon className="h-5 w-5 text-gray-600" />
+              </button>
+            </>
+          )}
         </div>
+      )}
+
+      {/* Sidebar - Desktop always visible, Mobile overlay */}
+      <div className={`
+        ${isMobile ? (
+          selectedNote ? 'hidden' : 'block'
+        ) : 'block'}
+        ${isMobile ? 'w-full' : 'w-64'}
+        bg-white border-r border-gray-200 flex flex-col flex-shrink-0
+        ${isMobile ? 'pt-16' : ''}
+      `}>
+        {!isMobile && (
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-semibold text-gray-900">topnote</h1>
+              <button
+                onClick={createNote}
+                disabled={isCreating}
+                className="p-1 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+              >
+                <PlusIcon className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
+        )}
 
         <Sidebar
           notes={notes}
           selectedNote={selectedNote}
-          onSelectNote={setSelectedNote}
+          onSelectNote={handleSelectNote}
           onDeleteNote={deleteNote}
           user={user}
+          isMobile={isMobile}
         />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className={`
+        flex-1 flex flex-col overflow-hidden
+        ${isMobile ? (
+          selectedNote ? 'block' : 'hidden'
+        ) : 'block'}
+        ${isMobile ? 'pt-16' : ''}
+      `}>
         {selectedNote ? (
-          <NoteEditor note={selectedNote} onUpdateNote={updateNote} />
+          <NoteEditor 
+            note={selectedNote} 
+            onUpdateNote={updateNote}
+            isMobile={isMobile}
+            onBack={handleBackToList}
+          />
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            <div className="text-center">
-              <h2 className="text-xl font-medium mb-2">No note selected</h2>
-              <p>
-                Create a new note or select an existing one to start writing
-              </p>
+          !isMobile && (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <h2 className="text-xl font-medium mb-2">No note selected</h2>
+                <p>
+                  Create a new note or select an existing one to start writing
+                </p>
+              </div>
             </div>
-          </div>
+          )
         )}
       </div>
     </div>

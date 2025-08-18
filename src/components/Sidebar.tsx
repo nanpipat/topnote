@@ -14,9 +14,10 @@ interface SidebarProps {
   onSelectNote: (note: Note) => void
   onDeleteNote: (noteId: string) => void
   user: User
+  isMobile?: boolean
 }
 
-export default function Sidebar({ notes, selectedNote, onSelectNote, onDeleteNote, user }: SidebarProps) {
+export default function Sidebar({ notes, selectedNote, onSelectNote, onDeleteNote, user, isMobile = false }: SidebarProps) {
   const { signOut } = useAuth()
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -104,7 +105,7 @@ export default function Sidebar({ notes, selectedNote, onSelectNote, onDeleteNot
       </div>
 
       {/* User Info & Sign Out */}
-      <div className="border-t border-gray-200 p-4">
+      <div className={`border-t border-gray-200 p-4 ${isMobile ? 'pb-8' : ''}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
